@@ -1,0 +1,162 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+
+typedef struct noeud {
+int val ;
+struct noeud* next ;
+} noeud ;
+
+
+noeud* create_noeud(int val){
+    noeud* noeud = malloc(sizeof(noeud));
+    noeud->val = val ;
+    noeud-> next = NULL;
+    return noeud ;
+}
+
+noeud* ajouter_elem(int x , noeud* list){
+    noeud* p = create_noeud(x) ;
+    if(list == NULL)
+        {return p ;}
+    else {
+    noeud* q = list ;
+    while(q->next != NULL)
+       {q = q->next;}
+    q->next = p ;
+    return list;
+    }
+}
+
+
+noeud* retirer_elem(int elem, noeud* list) {
+    if (list == NULL) {
+        return NULL;
+    }
+
+    if (list->val == elem) {
+        noeud* tmp = list;
+        list = list->next;
+        free(tmp);
+        return list;
+    }
+
+    noeud* p = list;
+    while (p->next != NULL) {
+        if (p->next->val == elem) {
+            noeud* q = p->next;
+            p->next = p->next->next;
+            free(q);
+            return list;
+        }
+        p = p->next;
+    }
+    return list;
+}
+
+void print_list(noeud* list){
+  while(list != NULL){
+    printf("%d " , list->val);
+    list=list->next;
+}
+printf("\n") ;
+}
+
+bool in_list(int x , noeud* list){
+  while( list != NULL ){
+    if (list->val == x)
+        return true ;
+    list = list->next ;
+  }
+  return false ;
+}
+
+int list_size(noeud* list){
+    int acc = 0 ; 
+    while(list != NULL){
+        acc++;
+        list = list->next ;
+    }
+    return acc ;
+}
+
+
+int match_op ( int n1 ,int n2 ,char op ){
+if ( op == '+') return n1 + n2 ;
+    else if ( op == '-') return n1 - n2 ;
+    else if ( op == '*') return n1 * n2 ;
+    else if ( op == '/' && n2 != 0 ) return n1/n2 ;
+    else printf("DIVISION PAR 0 T FOU TOI ?") ;
+}
+
+int generate_int ( int min , int max ){
+return min + rand() % ( max - min ) ; }
+
+noeud* generate_list( int max , int taille ){
+noeud* list = create_noeud(generate_int(0,max)) ;
+for ( int i = 0 ; i < taille - 1 ; i++){
+    ajouter_elem(generate_int(0,max) , list) ; }
+    return list ;
+}
+
+
+
+
+int main(){
+
+    int cible = generate_int(1,1000) ;
+    noeud* list = generate_list(150,6) ;
+    int result = -1 ;
+
+    while( result != cible ) {
+    printf("votre cible est : %d \n" , cible) ;
+     
+   if (list_size(list) == 1) {
+            if (list->val != cible) {
+                printf("Vous avez perdu, le dernier nombre %d ne correspond pas à la cible %d \n", list->val, cible);
+                break;  // Sort du jeu
+            }
+        }
+
+    int n1 ;
+    while(1){
+    printf("\nchoisissez un nombre de la list suivante : \n") ;
+    print_list(list) ;
+    scanf("%d" , &n1) ;
+    if (in_list(n1,list)){
+    list = retirer_elem(n1,list) ;
+    break ;}
+    else printf("le nombre que vous avez choisi n'est pas dans la liste , veuilllez en choisir un autre") ;}
+
+    char op ;
+    while(1){
+    printf("\nchoisissez une operation : ") ;
+    scanf(" %c" , &op) ;
+    if (op == '+' || op == '-' || op == '*' || op == '/') break;
+    else printf("Opération inconnue, veuillez en choisir une autre.\n");
+    }
+
+    int n2 ;
+    while(1){
+    printf("\nchoisissez un nombre de la list suivante : \n") ;
+    print_list(list) ;
+    scanf("%d" , &n2) ;
+    if (in_list(n2,list)) {
+    list = retirer_elem(n2,list) ;
+    break ;}
+    else printf(" le nombre que vous avez choisi n'est pas dans la liste , veuilllez en choisir un autre ") ;}
+
+
+
+    result = match_op(n1,n2,op) ;
+    printf("le resultat est : %d" , result) ;
+
+    if( result == cible )
+        printf("\nBien joué ;)") ;
+    else
+    list = ajouter_elem(result , list) ;
+    printf("\n \n") ; }
+
+    return 0;
+}
+
