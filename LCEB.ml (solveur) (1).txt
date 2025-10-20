@@ -1,0 +1,74 @@
+type op = Add | Souss | Mult | Div
+     
+let op_list = [Add ; Souss ; Mult ; Div] 
+
+     (*test revenir en arriere*)
+              
+let match_op a op b = match op with 
+  |Add -> Some (a+b)
+  |Souss -> Some (a-b)
+  |Mult -> Some (a*b)
+  |Div -> if b <> 0 then Some (a/b) 
+      else None  
+        
+let string_of_op op = match op with 
+  |Add -> "+"
+  |Souss -> "-"
+  |Mult -> "*"
+  |Div -> "/" 
+
+(*fonction d'affichage*)
+let print history_list =
+  List.iter (fun (a, op, b, result) ->
+      Printf.printf "%d %s %d = %d\n" a (string_of_op op) b result
+    ) (List.rev history_list);(*parce qu'on rajouter les elements a la fin de la liste*)
+  print_newline ();
+  print_newline ();;
+  
+  
+let rec remove1 x list = match list with 
+  |[] -> [] 
+  |t::q -> if t = x then q 
+      else t::remove1 x q
+             
+(*fonction pour enlever deux elements d'une liste*)
+let rec remove a b list = match list with 
+  |[] -> []
+  |t::q -> if t = a then remove1 b q
+      else if t = b then remove1 a q
+      else t::remove a b q 
+           
+(* fonction principale *)
+let rec le_compte_est_bon numbers_list target history_list = match numbers_list with 
+  |[] -> false
+  |[x] -> if x = target then (print history_list ; true)
+      else false
+  |_ -> 
+      let solution_found = ref false in
+      let rec explore_pairs list = match list with 
+        |[] -> ()
+        |t::q -> 
+            let rec explore_rest rest = match rest with 
+              |[] -> explore_pairs q (* si la liste de reste est vide , t a ete donc combine avec tout les elements , on passe au suivant*)
+              |u::p -> 
+                  List.iter 
+                    (fun op -> match match_op t op u with 
+                       |Some solution -> 
+                           let new_numbers_list = solution::(remove t u numbers_list) in 
+                           let new_step = (t,op,u,solution)::history_list in
+                           if le_compte_est_bon new_numbers_list target new_step
+                           then solution_found := true (* solution donc trouvee *)
+                       |None -> () ) op_list ;
+                  explore_rest p 
+            in explore_rest q 
+      in explore_pairs numbers_list ;
+      !solution_found 
+      
+  
+let () = 
+  let list = [25;8;3;5;7;6] in 
+  let target = 961 in
+  if not(le_compte_est_bon list target []) 
+  then Printf.printf " SOLUTION NON TROUVEE "
+      
+  
