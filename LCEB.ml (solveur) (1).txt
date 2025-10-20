@@ -2,7 +2,7 @@ type op = Add | Souss | Mult | Div
      
 let op_list = [Add ; Souss ; Mult ; Div] 
 
-     (*test revenir en arriere*)
+     (*test*)
               
 let match_op a op b = match op with 
   |Add -> Some (a+b)
